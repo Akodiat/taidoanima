@@ -10,6 +10,8 @@ import { MMDAnimationHelper } from "./jsm/animation/MMDAnimationHelper.js";
 let mesh, camera, scene, renderer, effect;
 let helper, ikHelper, physicsHelper;
 
+let speed = 1;
+
 const clock = new THREE.Clock();
 
 Ammo().then(function (AmmoLib) {
@@ -109,6 +111,18 @@ function init() {
                 helper.update(5);
             };
 
+            document.getElementById("slowdown").onclick = ()=>{
+                playpause.checked = false; playpause.onchange();
+                speed /= 1.1;
+                console.log("Speed: "+speed)
+            };
+
+            document.getElementById("speedup").onclick = ()=>{
+                playpause.checked = false; playpause.onchange();
+                speed *= 1.1;
+                console.log("Speed: "+speed)
+            };
+
         },
         onProgress,
         null
@@ -170,6 +184,6 @@ function animate() {
 }
 
 function render() {
-    helper.update(clock.getDelta());
+    helper.update(speed * clock.getDelta());
     effect.render(scene, camera);
 }
