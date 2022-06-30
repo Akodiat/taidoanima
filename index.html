@@ -44,17 +44,22 @@
 				height: 37px;
 				cursor: pointer;
 			}
+
+			.mediabutton:active {
+				background: #ced9e3;
+				transition: 100ms all ease;
+			}
 		</style>
 	</head>
 
 	<body>
 		<div id="info">
 		<h3>Taidoanima</h3>
-		Adapted into <a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> by Joakim Bohlin<br />
+		Adapted into <a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> by Joakim Bohlin<br/>
 		All animation and modelling by Taidoanima: <a href="https://taidoanima.pathless.net/" target="_blank" rel="noopener">taidoanima.pathless.net/</a>
 		</div>
 
-		<div style="position: absolute; bottom:1em; width: 100%; background: #ced9e370; padding: 10px; 
+		<div style="position: fixed; bottom:1em; width: 100%; background: #ced9e370; padding: 10px;
 		align-items: center;">
 			<div style="display: flex; justify-content: center;">
 				<input type="button" value="slower" class="mediabutton" id="slowdown">
