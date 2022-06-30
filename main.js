@@ -37,6 +37,13 @@ function init() {
     gridHelper.position.y = -10;
     scene.add(gridHelper);
 
+    const arrowHelper = new THREE.ArrowHelper(
+        new THREE.Vector3(0, 0, 1),
+        new THREE.Vector3(0, -10, 0),
+        45/4, 0x000000
+    );
+    scene.add( arrowHelper );
+
     const ambient = new THREE.AmbientLight(0x666666);
     scene.add(ambient);
 
