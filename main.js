@@ -1,14 +1,11 @@
 import * as THREE from "three";
 
-import Stats from "./jsm/libs/stats.module.js";
 import { GUI } from "./jsm/libs/lil-gui.module.min.js";
 
 import { OrbitControls } from "./jsm/controls/OrbitControls.js";
 import { OutlineEffect } from "./jsm/effects/OutlineEffect.js";
 import { MMDLoader } from "./jsm/loaders/MMDLoader.js";
 import { MMDAnimationHelper } from "./jsm/animation/MMDAnimationHelper.js";
-
-let stats;
 
 let mesh, camera, scene, renderer, effect;
 let helper, ikHelper, physicsHelper;
@@ -27,14 +24,14 @@ function init() {
     document.body.appendChild(container);
 
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
-    camera.position.z = 30;
+    camera.position.z = -30;
 
     // scene
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xffffff);
 
-    const gridHelper = new THREE.PolarGridHelper(30, 10);
+    const gridHelper = new THREE.PolarGridHelper(45, 8);
     gridHelper.position.y = -10;
     scene.add(gridHelper);
 
@@ -57,11 +54,6 @@ function init() {
 
     effect = new OutlineEffect(renderer);
 
-    // STATS
-
-    stats = new Stats();
-    container.appendChild(stats.dom);
-
     // model
 
     function onProgress(xhr) {
@@ -72,7 +64,7 @@ function init() {
     }
 
     const modelFile = "mmd/taidoka.pmd";
-    const vmdFiles = ["mmd/wavefile_v2.vmd"];
+    const vmdFiles = ["mmd/sentai-houkei.vmd"];
 
     helper = new MMDAnimationHelper({
         afterglow: 2.0,
@@ -101,7 +93,15 @@ function init() {
             physicsHelper.visible = false;
             scene.add(physicsHelper);
 
-            initGui();
+            //initGui();
+
+            document.getElementById("playpause").onchange = ()=>{
+                console.log("Wooo")
+                helper.enable("animation", !document.getElementById("playpause").checked);
+            };
+
+            document.getElementById("playpause").checked = false;
+
         },
         onProgress,
         null
@@ -159,10 +159,7 @@ function onWindowResize() {
 
 function animate() {
     requestAnimationFrame(animate);
-
-    stats.begin();
     render();
-    stats.end();
 }
 
 function render() {
