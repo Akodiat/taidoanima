@@ -21,6 +21,16 @@ Ammo().then(function (AmmoLib) {
     animate();
 });
 
+// From: https://html-online.com/articles/get-url-parameters-javascript/
+function getUrlParam(param, defaultVal) {
+    let vars = {};
+    window.location.href.replace(
+        /[?&]+([^=&]+)=([^&]*)/gi,
+        (m,key,value)=>{vars[key] = value}
+    );
+    return param in vars ? vars[param] : defaultVal;
+}
+
 function init() {
     const container = document.createElement("div");
     document.body.appendChild(container);
@@ -63,6 +73,69 @@ function init() {
 
     // model
 
+    helper = new MMDAnimationHelper({
+        afterglow: 2.0,
+    });
+
+    let animationPath = `resources/${getUrlParam("anima", "sentai-hokei")}.vmd`;
+    document.getElementById("anima-select").value = animationPath;
+
+    loadAnimation("resources/taidoka.pmd", animationPath, initGui);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.minDistance = 10;
+    controls.maxDistance = 100;
+
+    window.addEventListener("resize", onWindowResize);
+
+    function initGui() {
+        let playpause = document.getElementById("playpause");
+
+        playpause.onchange = ()=>{
+            helper.enable("animation", !playpause.checked);
+        };
+        playpause.checked = false;
+
+        document.getElementById("rwd").onclick = ()=>{
+            playpause.checked = false; playpause.onchange();
+            helper.update(-5);
+        };
+
+        document.getElementById("ffw").onclick = ()=>{
+            playpause.checked = false; playpause.onchange();
+            helper.update(5);
+        };
+
+        document.getElementById("slowdown").onclick = ()=>{
+            playpause.checked = false; playpause.onchange();
+            speed /= 1.1;
+            console.log("Speed: "+speed)
+        };
+
+        document.getElementById("speedup").onclick = ()=>{
+            playpause.checked = false; playpause.onchange();
+            speed *= 1.1;
+            console.log("Speed: "+speed)
+        };
+
+        document.getElementById("anima-select").onchange = ()=>{
+            swapAnimation("resources/taidoka.pmd", document.getElementById("anima-select").value)
+        }
+    }
+}
+
+function swapAnimation(modelPath, animationPath) {
+    scene.remove(mesh);
+    helper.remove(mesh);
+    scene.remove(ikHelper);
+    scene.remove(physicsHelper);
+    loadAnimation(modelPath, animationPath);
+}
+
+
+function loadAnimation(modelPath, animationPath, callback) {
+    const loader = new MMDLoader();
+
     function onProgress(xhr) {
         if (xhr.lengthComputable) {
             const percentComplete = (xhr.loaded / xhr.total) * 100;
@@ -70,18 +143,9 @@ function init() {
         }
     }
 
-    const modelFile = "mmd/taidoka.pmd";
-    const vmdFiles = ["mmd/sentai-houkei.vmd"];
-
-    helper = new MMDAnimationHelper({
-        afterglow: 2.0,
-    });
-
-    const loader = new MMDLoader();
-
     loader.loadWithAnimation(
-        modelFile,
-        vmdFiles,
+        modelPath,
+        [animationPath],
         function (mmd) {
             mesh = mmd.mesh;
             mesh.position.y = -10;
@@ -100,83 +164,13 @@ function init() {
             physicsHelper.visible = false;
             scene.add(physicsHelper);
 
-            //initGui();
-
-            let playpause = document.getElementById("playpause");
-            playpause.onchange = ()=>{
-                helper.enable("animation", !playpause.checked);
-            };
-            playpause.checked = false;
-
-            document.getElementById("rwd").onclick = ()=>{
-                playpause.checked = false; playpause.onchange();
-                helper.update(-5);
-            };
-
-            document.getElementById("ffw").onclick = ()=>{
-                playpause.checked = false; playpause.onchange();
-                helper.update(5);
-            };
-
-            document.getElementById("slowdown").onclick = ()=>{
-                playpause.checked = false; playpause.onchange();
-                speed /= 1.1;
-                console.log("Speed: "+speed)
-            };
-
-            document.getElementById("speedup").onclick = ()=>{
-                playpause.checked = false; playpause.onchange();
-                speed *= 1.1;
-                console.log("Speed: "+speed)
-            };
-
+            if (callback !== undefined) {
+                callback();
+            }
         },
         onProgress,
         null
     );
-
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.minDistance = 10;
-    controls.maxDistance = 100;
-
-    window.addEventListener("resize", onWindowResize);
-
-    function initGui() {
-        const api = {
-            animation: true,
-            ik: true,
-            outline: true,
-            physics: true,
-            "show IK bones": false,
-            "show rigid bodies": false,
-        };
-
-        const gui = new GUI();
-
-        gui.add(api, "animation").onChange(function () {
-            helper.enable("animation", api["animation"]);
-        });
-
-        gui.add(api, "ik").onChange(function () {
-            helper.enable("ik", api["ik"]);
-        });
-
-        gui.add(api, "outline").onChange(function () {
-            effect.enabled = api["outline"];
-        });
-
-        gui.add(api, "physics").onChange(function () {
-            helper.enable("physics", api["physics"]);
-        });
-
-        gui.add(api, "show IK bones").onChange(function () {
-            ikHelper.visible = api["show IK bones"];
-        });
-
-        gui.add(api, "show rigid bodies").onChange(function () {
-            if (physicsHelper !== undefined) physicsHelper.visible = api["show rigid bodies"];
-        });
-    }
 }
 
 function onWindowResize() {
