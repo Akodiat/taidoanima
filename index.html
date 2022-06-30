@@ -28,12 +28,21 @@
 			}
 
 			.playpause input[type='checkbox'] {
-				visibility: hidden;
+				display: none;
 			}
 
 			.playpause input[type='checkbox']:checked + label {
 				border-style: solid;
 				border-width: 18px 0 18px 30px;
+			}
+
+			.mediabutton {
+				border: none;
+				background: #ced9e370;
+				margin-left: 10px;
+				margin-right: 10px;
+				height: 37px;
+				cursor: pointer;
 			}
 		</style>
 	</head>
@@ -45,11 +54,16 @@
 		All animation and modelling by Taidoanima: <a href="https://taidoanima.pathless.net/" target="_blank" rel="noopener">taidoanima.pathless.net/</a>
 		</div>
 
-		<div style="position: absolute; bottom:1em; width: 100%; background: #ced9e370; padding: 10px;">
-			<div class="playpause" style="display: flex; justify-content: center">
-				<input type="checkbox" value="None" id="playpause" name="check">
-				<label for="playpause" tabindex=1></label>
-			  </div>
+		<div style="position: absolute; bottom:1em; width: 100%; background: #ced9e370; padding: 10px; 
+		align-items: center;">
+			<div style="display: flex; justify-content: center;">
+				<input type="button" value="-5" class="mediabutton" id="rwd">
+				<div class="playpause" style="display: contents">
+					<input type="checkbox" value="None" id="playpause" name="check">
+					<label for="playpause" tabindex=1></label>
+				</div>
+				<input type="button" value="+5" class="mediabutton" id="ffw">
+			</div>
 		</div>
 
 		<script src="js/libs/ammo.wasm.js"></script>

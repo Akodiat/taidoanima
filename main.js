@@ -42,8 +42,6 @@ function init() {
     directionalLight.position.set(-1, 1, 1).normalize();
     scene.add(directionalLight);
 
-    //
-
     renderer = new THREE.WebGLRenderer({
         antialias: true,
     });
@@ -95,12 +93,21 @@ function init() {
 
             //initGui();
 
-            document.getElementById("playpause").onchange = ()=>{
-                console.log("Wooo")
-                helper.enable("animation", !document.getElementById("playpause").checked);
+            let playpause = document.getElementById("playpause");
+            playpause.onchange = ()=>{
+                helper.enable("animation", !playpause.checked);
+            };
+            playpause.checked = false;
+
+            document.getElementById("rwd").onclick = ()=>{
+                playpause.checked = false; playpause.onchange();
+                helper.update(-5);
             };
 
-            document.getElementById("playpause").checked = false;
+            document.getElementById("ffw").onclick = ()=>{
+                playpause.checked = false; playpause.onchange();
+                helper.update(5);
+            };
 
         },
         onProgress,
