@@ -12,7 +12,7 @@ let helper, ikHelper, physicsHelper;
 
 let speed = 1;
 
-const modelPaths = ["resources/taidoka2.pmd", "resources/taidoka.pmd"];
+const modelPaths = ["resources/models/taidoka2.pmd", "resources/models/taidoka.pmd"];
 
 const clock = new THREE.Clock();
 
