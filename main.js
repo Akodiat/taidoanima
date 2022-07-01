@@ -1,16 +1,18 @@
 import * as THREE from "three";
 
-import { GUI } from "./jsm/libs/lil-gui.module.min.js";
-
 import { OrbitControls } from "./jsm/controls/OrbitControls.js";
 import { OutlineEffect } from "./jsm/effects/OutlineEffect.js";
 import { MMDLoader } from "./jsm/loaders/MMDLoader.js";
 import { MMDAnimationHelper } from "./jsm/animation/MMDAnimationHelper.js";
+import { animationMap } from "./animationMap.js"
 
-let mesh, camera, scene, renderer, effect;
+let meshes = [];
+let camera, scene, renderer, effect;
 let helper, ikHelper, physicsHelper;
 
 let speed = 1;
+
+const modelPaths = ["resources/taidoka2.pmd", "resources/taidoka.pmd"];
 
 const clock = new THREE.Clock();
 
@@ -77,10 +79,10 @@ function init() {
         afterglow: 2.0,
     });
 
-    let animationPath = `resources/${getUrlParam("anima", "sentai-hokei")}.vmd`;
-    document.getElementById("anima-select").value = animationPath;
+    let animationId = getUrlParam("id", "sentai-hokei");
+    document.getElementById("anima-select").value = animationId;
 
-    loadAnimation("resources/taidoka.pmd", animationPath, initGui);
+    load(animationId, initGui);
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.minDistance = 10;
@@ -97,39 +99,69 @@ function init() {
         playpause.checked = false;
 
         document.getElementById("rwd").onclick = ()=>{
-            playpause.checked = false; playpause.onchange();
+            setPause(false);
             helper.update(-5);
         };
 
         document.getElementById("ffw").onclick = ()=>{
-            playpause.checked = false; playpause.onchange();
+            setPause(false);
             helper.update(5);
         };
 
         document.getElementById("slowdown").onclick = ()=>{
-            playpause.checked = false; playpause.onchange();
+            setPause(false);
             speed /= 1.1;
             console.log("Speed: "+speed)
         };
 
         document.getElementById("speedup").onclick = ()=>{
-            playpause.checked = false; playpause.onchange();
+            setPause(false);
             speed *= 1.1;
             console.log("Speed: "+speed)
         };
 
         document.getElementById("anima-select").onchange = ()=>{
-            swapAnimation("resources/taidoka.pmd", document.getElementById("anima-select").value)
+            swapAnimation(document.getElementById("anima-select").value)
         }
     }
 }
 
-function swapAnimation(modelPath, animationPath) {
-    scene.remove(mesh);
-    helper.remove(mesh);
+function setPause(pause) {
+    let playpause = document.getElementById("playpause");
+    playpause.checked = pause;
+    helper.enable("animation", !playpause.checked);
+}
+
+function swapAnimation(animationId) {
+    meshes.forEach(mesh=>{
+        scene.remove(mesh);
+        helper.remove(mesh); 
+    })
+    meshes = [];
     scene.remove(ikHelper);
     scene.remove(physicsHelper);
-    loadAnimation(modelPath, animationPath);
+    load(animationId);
+}
+
+function load(animation, callback) {
+    let animationPaths = animationMap[animation];
+    setPause(true);
+    let nStarted = 0;
+    animationPaths.forEach((animationPath, i) => {
+        let model = modelPaths[(
+            i + Math.floor(Math.random()*modelPaths.length)
+        ) % modelPaths.length];
+        loadAnimation(model, animationPath, ()=>{
+            if (callback !== undefined) {
+                callback();
+            }
+            nStarted++;
+            // Make sure the start is synced
+            if (nStarted == animationPaths.length) {
+                setPause(false);
+            }
+        });
+    })
 }
 
 
@@ -147,7 +179,8 @@ function loadAnimation(modelPath, animationPath, callback) {
         modelPath,
         [animationPath],
         function (mmd) {
-            mesh = mmd.mesh;
+            const mesh = mmd.mesh;
+            meshes.push(mesh);
             mesh.position.y = -10;
             scene.add(mesh);
 
