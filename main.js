@@ -1,9 +1,12 @@
 import * as THREE from "three";
-
 import { OrbitControls } from "./jsm/controls/OrbitControls.js";
 import { OutlineEffect } from "./jsm/effects/OutlineEffect.js";
 import { MMDLoader } from "./jsm/loaders/MMDLoader.js";
 import { MMDAnimationHelper } from "./jsm/animation/MMDAnimationHelper.js";
+
+// VR / AR capabilities
+import { XRButton } from './jsm/webxr/XRButton.js';
+
 import { animationMap } from "./animationMap.js"
 
 let meshes = [];
@@ -41,7 +44,6 @@ function init() {
     // scene
 
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xffffff);
 
     const gridHelper = new THREE.PolarGridHelper(45, 8);
     gridHelper.position.y = -10;
@@ -62,8 +64,13 @@ function init() {
     scene.add(directionalLight);
 
     renderer = new THREE.WebGLRenderer({
-        antialias: true,
+        antialias: true, alpha: true
     });
+
+    renderer.xr.enabled = true;
+    renderer.xr.setReferenceSpaceType("local-floor")
+    renderer.domElement.style = "background:none";
+    document.getElementById("info").appendChild(XRButton.createButton(renderer, {optionalFeatures: ['light-estimation']}));
 
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -209,7 +216,7 @@ function onWindowResize() {
 }
 
 function animate() {
-    requestAnimationFrame(animate);
+    renderer.setAnimationLoop(animate);
     render();
 }
 
