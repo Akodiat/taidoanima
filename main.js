@@ -12,8 +12,6 @@ let helper, ikHelper, physicsHelper;
 
 let speed = 1;
 
-const modelPaths = ["resources/models/taidoka2.pmd", "resources/models/taidoka.pmd"];
-
 const clock = new THREE.Clock();
 
 Ammo().then(function (AmmoLib) {
@@ -144,20 +142,18 @@ function swapAnimation(animationId) {
 }
 
 function load(animation, callback) {
-    let animationPaths = animationMap[animation];
+    let paths = animationMap[animation];
     setPause(true);
     let nStarted = 0;
-    animationPaths.forEach((animationPath, i) => {
-        let model = modelPaths[(
-            i + Math.floor(Math.random()*modelPaths.length)
-        ) % modelPaths.length];
+    paths.animations.forEach((animationPath, i) => {
+        let model = paths.models[i % paths.models.length];
         loadAnimation(model, animationPath, ()=>{
             if (callback !== undefined) {
                 callback();
             }
             nStarted++;
             // Make sure the start is synced
-            if (nStarted == animationPaths.length) {
+            if (nStarted == paths.animations.length) {
                 setPause(false);
             }
         });
