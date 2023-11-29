@@ -38,21 +38,21 @@ function init() {
     const container = document.createElement("div");
     document.body.appendChild(container);
 
-    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
-    camera.position.z = -30;
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 200);
+    camera.position.z = -3;
+    camera.position.y = 1;
 
     // scene
 
     scene = new THREE.Scene();
 
-    const gridHelper = new THREE.PolarGridHelper(45, 8);
-    gridHelper.position.y = -10;
+    const gridHelper = new THREE.PolarGridHelper(4.5, 8);
     scene.add(gridHelper);
 
     const arrowHelper = new THREE.ArrowHelper(
         new THREE.Vector3(0, 0, 1),
-        new THREE.Vector3(0, -10, 0),
-        45/4, 0x000000
+        new THREE.Vector3(),
+        4.5/4, 0x000000
     );
     scene.add( arrowHelper );
 
@@ -90,8 +90,10 @@ function init() {
     load(animationId, initGui);
 
     const controls = new OrbitControls(camera, renderer.domElement);
-    controls.minDistance = 10;
-    controls.maxDistance = 100;
+    controls.minDistance = 1;
+    controls.maxDistance = 10;
+    controls.target = new THREE.Vector3(0, 1, 0)
+    camera.lookAt(controls.target)
 
     window.addEventListener("resize", onWindowResize);
 
@@ -183,8 +185,11 @@ function loadAnimation(modelPath, animationPath, callback) {
         [animationPath],
         function (mmd) {
             const mesh = mmd.mesh;
+
+            // Decimetres to metres
+            mesh.scale.divideScalar(10)
+
             meshes.push(mesh);
-            mesh.position.y = -10;
             scene.add(mesh);
 
             helper.add(mesh, {
